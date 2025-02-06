@@ -88,13 +88,11 @@ public class Board : MonoBehaviour
     }
 
     //消す処理
-    public void ClearAllRows(int y)
+    public List<BlockPeace> ClearAllRows(int y)
     {
         {
             ClearRow(y);
-
-            ShiftRowsDown(y + 1);
-
+            return ShiftRowsDown(y + 1);
         }
     }
 
@@ -125,12 +123,14 @@ public class Board : MonoBehaviour
     }
 
     //上にある奴らを一個落とす
-    void ShiftRowsDown(int startY)
+    List<BlockPeace> ShiftRowsDown(int startY)
     {
+        List<BlockPeace> RowsPeace = new List<BlockPeace>();
         for (int x = 0; x < width; x++)
         {
-            ShiftRowsDownColumn(x, startY);
+            RowsPeace.AddRange(ShiftRowsDownColumn(x, startY));
         }
+        return RowsPeace;
     }
     public List<BlockPeace> ShiftRowsDownColumn(int x, int startY)
     {

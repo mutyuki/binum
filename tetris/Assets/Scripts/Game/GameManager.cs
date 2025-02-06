@@ -652,12 +652,16 @@ public class GameManager : MonoBehaviour
             List<BlockPeace> blockPeaces = savedBlock
                 .GetComponentsInChildren<BlockPeace>()
                 .ToList();
-            yield return StartCoroutine(MargeBlock(blockPeaces));
+            yield return StartCoroutine(PrepareMargeBlock(blockPeaces));
         }
     }
+    private IEnumerator PrepareMargeBlock(List<BlockPeace> blockPeaces)
+    {
+        List<BlockPeace> highValueBlocks = new List<BlockPeace>();
+        yield return StartCoroutine(MargeBlock(blockPeaces, highValueBlocks));
+    }
 
-    List<BlockPeace> highValueBlocks = new List<BlockPeace>();
-    private IEnumerator MargeBlock(List<BlockPeace> blockPeaces)
+    private IEnumerator MargeBlock(List<BlockPeace> blockPeaces, List<BlockPeace> highValueBlocks)
     {
         blockPeaces = blockPeaces.OrderBy(bp => bp.Number).ToList();
         HashSet<BlockPeace> movedBlocks = new HashSet<BlockPeace>();
@@ -705,17 +709,23 @@ public class GameManager : MonoBehaviour
         blockPeaces = movedBlocks.ToList();
         if (blockPeaces.Count > 0)
         {
-            yield return StartCoroutine(MargeBlock(blockPeaces));
+            yield return StartCoroutine(MargeBlock(blockPeaces, highValueBlocks));
         }
         else
         {
+            List<BlockPeace> rowsBlockPeaces = new List<BlockPeace>();
             foreach (BlockPeace blockPeace in highValueBlocks)
             {
                 if (blockPeace != null)
                 {
                     Vector3Int pos = Vector3Int.RoundToInt(blockPeace.transform.position);
-                    board.ClearAllRows(pos.y);
+                    rowsBlockPeaces.AddRange(board.ClearAllRows(pos.y));
                 }
+            }
+            highValueBlocks = new List<BlockPeace>();
+            if (rowsBlockPeaces.Count > 0)
+            {
+                yield return StartCoroutine(MargeBlock(rowsBlockPeaces, highValueBlocks));
             }
         }
     }
