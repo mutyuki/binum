@@ -1,8 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Runtime.InteropServices;
-using TreeEditor;
 using UnityEngine;
 
 public class Block : MonoBehaviour
@@ -11,7 +7,9 @@ public class Block : MonoBehaviour
     private bool canRotate = true;
 
     public List<int> peaceNumber = new List<int> { 2, 4, 8, 16 };
-    [SerializeField] BlockPeace[] blockPeaces;
+
+    [SerializeField]
+    BlockPeace[] blockPeaces;
 
     //動き方
     void Move(Vector3 moveDirection)

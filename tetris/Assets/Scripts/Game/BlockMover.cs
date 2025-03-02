@@ -1,18 +1,22 @@
-using System.Collections;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class BlockMover : MonoBehaviour
 {
-    public IEnumerator MoveToPosition(Vector3 targetPosition, float duration)
+    public async UniTask MoveToPosition(Vector3 targetPosition, float duration)
     {
         Vector3 startPosition = transform.position;
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
         {
-            transform.position = Vector3.Lerp(startPosition, targetPosition, elapsedTime / duration);
+            transform.position = Vector3.Lerp(
+                startPosition,
+                targetPosition,
+                elapsedTime / duration
+            );
             elapsedTime += Time.deltaTime;
-            yield return null;
+            await UniTask.Yield();
         }
 
         transform.position = targetPosition;

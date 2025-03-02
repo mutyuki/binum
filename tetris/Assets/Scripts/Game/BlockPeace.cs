@@ -1,9 +1,10 @@
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class BlockPeace : MonoBehaviour
 {
-    [SerializeField] TextMeshProUGUI NumberText;
+    [SerializeField]
+    TextMeshProUGUI NumberText;
     public int Number { get; private set; }
     private SpriteRenderer spriteRenderer;
 

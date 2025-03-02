@@ -1,6 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -601,7 +601,7 @@ public class GameManager : MonoBehaviour
     }
 
     //底についたときの処理
-    void BottomBoard()
+    private async void BottomBoard()
     {
         CancelInvoke();
         while (board.IsWithinPosition(activeBlock))
@@ -620,12 +620,12 @@ public class GameManager : MonoBehaviour
         Block savedBlock = activeBlock;
         activeBlock = null;
         Destroy(ghostBlock.gameObject);
-        StartCoroutine(BottomBoardCoroutine(savedBlock));
+        await BottomBoardCoroutine(savedBlock);
     }
 
-    private IEnumerator BottomBoardCoroutine(Block savedBlock)
+    private async UniTask BottomBoardCoroutine(Block savedBlock)
     {
-        yield return StartCoroutine(CheckAdjacentBlockNumbers(savedBlock));
+        await CheckAdjacentBlockNumbers(savedBlock);
         // 次のブロックをスポーン
         activeBlock = GetNextBlock();
         while (!board.IsWithinPosition(activeBlock))
@@ -645,23 +645,24 @@ public class GameManager : MonoBehaviour
         nextdropTimer = Time.time + dropInterval;
     }
 
-    private IEnumerator CheckAdjacentBlockNumbers(Block savedBlock)
+    private async UniTask CheckAdjacentBlockNumbers(Block savedBlock)
     {
         if (savedBlock != null)
         {
             List<BlockPeace> blockPeaces = savedBlock
                 .GetComponentsInChildren<BlockPeace>()
                 .ToList();
-            yield return StartCoroutine(PrepareMargeBlock(blockPeaces));
+            await PrepareMargeBlock(blockPeaces);
         }
     }
-    private IEnumerator PrepareMargeBlock(List<BlockPeace> blockPeaces)
+
+    private async UniTask PrepareMargeBlock(List<BlockPeace> blockPeaces)
     {
         List<BlockPeace> highValueBlocks = new List<BlockPeace>();
-        yield return StartCoroutine(MargeBlock(blockPeaces, highValueBlocks));
+        await MargeBlock(blockPeaces, highValueBlocks);
     }
 
-    private IEnumerator MargeBlock(List<BlockPeace> blockPeaces, List<BlockPeace> highValueBlocks)
+    private async UniTask MargeBlock(List<BlockPeace> blockPeaces, List<BlockPeace> highValueBlocks)
     {
         blockPeaces = blockPeaces.OrderBy(bp => bp.Number).ToList();
         HashSet<BlockPeace> movedBlocks = new HashSet<BlockPeace>();
@@ -683,7 +684,7 @@ public class GameManager : MonoBehaviour
 
                     foreach (BlockPeace bp in visited)
                     {
-                        yield return StartCoroutine(AnimationMargeBlock(bp, newPos, positions));
+                        AnimationMargeBlock(bp, newPos, positions);
                     }
 
                     int n = (int)Mathf.Pow(2, count - 1);
@@ -694,7 +695,7 @@ public class GameManager : MonoBehaviour
                     {
                         highValueBlocks.Add(newBlockPeace);
                     }
-                    yield return new WaitUntil(() => visited.All(bp => bp == null));
+                    await UniTask.WaitUntil(() => visited.All(bp => bp == null));
                     blockPeaces.Add(newBlockPeace);
                     blockPeaces = blockPeaces.OrderBy(bp => bp.Number).ToList();
                 }
@@ -709,7 +710,7 @@ public class GameManager : MonoBehaviour
         blockPeaces = movedBlocks.ToList();
         if (blockPeaces.Count > 0)
         {
-            yield return StartCoroutine(MargeBlock(blockPeaces, highValueBlocks));
+            await MargeBlock(blockPeaces, highValueBlocks);
         }
         else
         {
@@ -725,12 +726,12 @@ public class GameManager : MonoBehaviour
             highValueBlocks = new List<BlockPeace>();
             if (rowsBlockPeaces.Count > 0)
             {
-                yield return StartCoroutine(MargeBlock(rowsBlockPeaces, highValueBlocks));
+                await MargeBlock(rowsBlockPeaces, highValueBlocks);
             }
         }
     }
 
-    private IEnumerator AnimationMargeBlock(
+    private async UniTask AnimationMargeBlock(
         BlockPeace bp,
         Vector3 newPos,
         List<Vector3Int> positions
@@ -745,8 +746,7 @@ public class GameManager : MonoBehaviour
         }
 
         BlockMover blockMover = bp.gameObject.AddComponent<BlockMover>();
-        StartCoroutine(blockMover.MoveToPosition(newPos, 0.25f));
-        yield return null;
+        await blockMover.MoveToPosition(newPos, 0.25f);
     }
 
     private void ExploreBlock(BlockPeace blockPeace, HashSet<BlockPeace> visited)

@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Board : MonoBehaviour
@@ -9,8 +7,9 @@ public class Board : MonoBehaviour
 
     [SerializeField]
     private Transform tetrisFlame;
-    [SerializeField] private BlockPeace blockPeace;
 
+    [SerializeField]
+    private BlockPeace blockPeace;
     private int height = 30,
         width = 10,
         header = 8; //ボードの大きさ
@@ -132,6 +131,7 @@ public class Board : MonoBehaviour
         }
         return RowsPeace;
     }
+
     public List<BlockPeace> ShiftRowsDownColumn(int x, int startY)
     {
         List<BlockPeace> movedBlocks = new List<BlockPeace>();
@@ -185,6 +185,7 @@ public class Board : MonoBehaviour
             }
         }
     }
+
     public BlockPeace CreateNewBlock(Vector3 newPos, int newNumber)
     {
         BlockPeace newBlockPeace = Instantiate(blockPeace, newPos, Quaternion.identity);
