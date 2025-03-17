@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
 {
     Spawner spawner;
     Block activeBlock;
-    Block ghostBlock;
     NextSpawner nextSpawner;
 
     Block holdBlock;
@@ -20,6 +19,7 @@ public class GameManager : MonoBehaviour
     float nextdropTimer = 2f;
     Board board;
     HoldSpawner holdSpawner;
+    [SerializeField] GhostBlock ghostBlock;
 
     private bool holdcheck = true;
 
@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
         if (!activeBlock)
         {
             activeBlock = GetNextBlock();
-            CreateGhostBlock();
+            ghostBlock.CreateGhostBlock(activeBlock);
         }
         if (gameOverPanel.activeInHierarchy)
         {
@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour
         if (activeBlock != null)
         {
             PlayerInput();
-            UpdateGhostBlock();
+            ghostBlock.UpdateGhostBlock(activeBlock, board);
         }
     }
 
@@ -619,7 +619,7 @@ public class GameManager : MonoBehaviour
         }
         Block savedBlock = activeBlock;
         activeBlock = null;
-        Destroy(ghostBlock.gameObject);
+        ghostBlock.DestroyGhostBlock();
         await BottomBoardCoroutine(savedBlock);
     }
 
@@ -633,7 +633,7 @@ public class GameManager : MonoBehaviour
             activeBlock.MoveUp();
         }
         //ゴーストブロックの変更
-        CreateGhostBlock();
+        ghostBlock.CreateGhostBlock(activeBlock);
 
         holdcheck = true;
 
@@ -684,7 +684,7 @@ public class GameManager : MonoBehaviour
 
                     foreach (BlockPeace bp in visited)
                     {
-                        AnimationMargeBlock(bp, newPos, positions);
+                        await AnimationMargeBlock(bp, newPos, positions);
                     }
 
                     int n = (int)Mathf.Pow(2, count - 1);
@@ -805,15 +805,15 @@ public class GameManager : MonoBehaviour
             {
                 activeBlock = spawner.SpawnBlock(holdBlock);
                 //ゴーストブロックの変更
-                Destroy(ghostBlock.gameObject);
-                CreateGhostBlock();
+                ghostBlock.DestroyGhostBlock();
+                ghostBlock.CreateGhostBlock(activeBlock);
             }
             else
             {
                 activeBlock = GetNextBlock();
                 //ゴーストブロックの変更
                 Destroy(ghostBlock.gameObject);
-                CreateGhostBlock();
+                ghostBlock.CreateGhostBlock(activeBlock);
             }
             holdBlock = holdSpawner.HoldBlock(saveBlock);
             holdcheck = false;
@@ -837,62 +837,4 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
-    // ゴーストブロックを作成
-    void CreateGhostBlock()
-    {
-        if (activeBlock != null)
-        {
-            ghostBlock = Instantiate(
-                activeBlock,
-                activeBlock.transform.position,
-                activeBlock.transform.rotation
-            );
-            // ゴーストブロックの色や透明度を変更
-            ChangeGhostAppearance();
-        }
-    }
-
-    // ゴーストブロックの外観を変更
-    void ChangeGhostAppearance()
-    {
-        foreach (Transform child in ghostBlock.transform)
-        {
-            SpriteRenderer renderer = child.GetComponent<SpriteRenderer>();
-            if (renderer != null)
-            {
-                // ゴーストブロックの透明度を設定
-                Color color = renderer.color;
-                color.a = 0f; // 透明度を設定
-                renderer.color = color;
-
-                // ゴーストブロックの描画順を後ろに設定
-                renderer.sortingOrder = -1; // アクティブブロックより低い値にする
-                // ゴーストブロックのすべての子オブジェクトからCanvasを持つものを取得して処理
-                foreach (Canvas childCanvas in ghostBlock.GetComponentsInChildren<Canvas>())
-                {
-                    childCanvas.sortingOrder = -1;
-                }
-            }
-        }
-    }
-
-    // ゴーストブロックをアップデート
-    void UpdateGhostBlock()
-    {
-        if (ghostBlock != null && activeBlock != null)
-        {
-            // ゴーストブロックをアクティブブロックと同じ位置に配置
-            ghostBlock.transform.position = activeBlock.transform.position;
-            ghostBlock.transform.rotation = activeBlock.transform.rotation;
-
-            // ゴーストブロックを落下させる
-            while (board.IsWithinPosition(ghostBlock))
-            {
-                ghostBlock.MoveDown();
-            }
-
-            // 1つ上に戻す（衝突する直前の位置にする）
-            ghostBlock.MoveUp();
-        }
-    }
 }

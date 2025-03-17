@@ -303,6 +303,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tetrisFlame: {fileID: 38650297866754571, guid: ac27037205a31d745b206b8970e9658c, type: 3}
   blockPeace: {fileID: 2576062442959856842, guid: 230d8b95977d6490b8e24d7131ae6504, type: 3}
+--- !u!1 &588164295
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 588164297}
+  - component: {fileID: 588164296}
+  m_Layer: 0
+  m_Name: GhostBlock
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &588164296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 588164295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6be8ca1273a679641a26c98259136718, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &588164297
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 588164295}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &618546495
 GameObject:
   m_ObjectHideFlags: 0
@@ -850,6 +894,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dropInterval: 2
+  ghostBlock: {fileID: 588164296}
   nextKeyDownInterval: 0.02
   nextKeyLeftRightInterval: 0.1
   nextKeyRotateInterval: 0.25
@@ -2651,3 +2696,4 @@ SceneRoots:
   - {fileID: 2127349951}
   - {fileID: 839261572}
   - {fileID: 4562565239607570039}
+  - {fileID: 588164297}
