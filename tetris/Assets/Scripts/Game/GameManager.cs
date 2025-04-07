@@ -19,7 +19,9 @@ public class GameManager : MonoBehaviour
     float nextdropTimer = 2f;
     Board board;
     HoldSpawner holdSpawner;
-    [SerializeField] GhostBlock ghostBlock;
+
+    [SerializeField]
+    GhostBlock ghostBlock;
 
     private bool holdcheck = true;
 
@@ -40,16 +42,16 @@ public class GameManager : MonoBehaviour
 
     bool gameOver;
     float beforerotationZ;
-    float afterrotationZ;
     float setuplimit = 0f;
     bool setup = false;
+
+    [SerializeField]
+    private SuperRotationSystem superRotationSystem;
 
     private void Start()
     {
         spawner = GameObject.FindObjectOfType<Spawner>();
-
         board = GameObject.FindObjectOfType<Board>();
-
         nextSpawner = GameObject.FindObjectOfType<NextSpawner>();
 
         holdSpawner = GameObject.FindObjectOfType<HoldSpawner>();
@@ -161,7 +163,7 @@ public class GameManager : MonoBehaviour
             nextKeyRotatetimer = Time.time + nextKeyRotateInterval;
             if (!board.IsWithinPosition(activeBlock))
             {
-                TryRotateLeftRight(activeBlock, 1);
+                superRotationSystem.TryRotateLeftRight(activeBlock, 1, beforerotationZ, board);
             }
         }
         //左回転
@@ -172,7 +174,7 @@ public class GameManager : MonoBehaviour
             nextKeyRotatetimer = Time.time + nextKeyRotateInterval;
             if (!board.IsWithinPosition(activeBlock))
             {
-                TryRotateLeftRight(activeBlock, 2);
+                superRotationSystem.TryRotateLeftRight(activeBlock, 2, beforerotationZ, board);
             }
         }
         //下加速
@@ -205,395 +207,6 @@ public class GameManager : MonoBehaviour
                     if (setup)
                     {
                         BottomBoard();
-                    }
-                }
-            }
-        }
-    }
-
-    //回転の処理
-    void TryRotateLeftRight(Block block, int rotate)
-    {
-        afterrotationZ = block.transform.eulerAngles.z;
-        Vector3 savePosition = block.transform.position;
-        Vector3 savePosition1 = block.transform.position;
-        Vector3 savePosition2 = block.transform.position;
-        if (block.CompareTag("I"))
-        {
-            switch (afterrotationZ)
-            {
-                //B
-                case 270:
-                    switch (beforerotationZ)
-                    {
-                        //A
-                        case 0:
-                            for (int i = 0; i < 2; ++i)
-                            {
-                                block.MoveLeft();
-                            }
-                            savePosition1 = block.transform.position;
-                            break;
-                        //C
-                        case 180:
-                            block.MoveRight();
-                            savePosition1 = block.transform.position;
-                            break;
-                    }
-                    break;
-                //D
-                case 90:
-                    switch (beforerotationZ)
-                    {
-                        //A
-                        case 0:
-                            block.MoveLeft();
-                            savePosition1 = block.transform.position;
-                            break;
-                        //C
-                        case 180:
-                            for (int i = 0; i < 2; i++)
-                            {
-                                block.MoveRight();
-                            }
-                            savePosition1 = block.transform.position;
-                            break;
-                    }
-                    break;
-                //A
-                case 0:
-                    switch (beforerotationZ)
-                    {
-                        //D
-                        case 90:
-                            for (int i = 0; i < 2; i++)
-                            {
-                                block.MoveLeft();
-                            }
-
-                            savePosition1 = block.transform.position;
-                            break;
-                        //B
-                        case 270:
-                            for (int i = 0; i < 2; i++)
-                            {
-                                block.MoveRight();
-                            }
-                            savePosition1 = block.transform.position;
-                            break;
-                    }
-                    break;
-                //C
-                case 180:
-                    switch (beforerotationZ)
-                    {
-                        //B
-                        case 270:
-                            block.MoveLeft();
-                            savePosition1 = block.transform.position;
-                            break;
-                        //D
-                        case 90:
-                            block.MoveRight();
-                            savePosition1 = block.transform.position;
-                            break;
-                    }
-                    break;
-            }
-
-            if (!board.IsWithinPosition(block))
-            {
-                switch (afterrotationZ)
-                {
-                    //D
-                    case 90:
-                    //B
-                    case 270:
-                        switch (beforerotationZ)
-                        {
-                            //A
-                            case 0:
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    block.MoveRight();
-                                }
-                                savePosition2 = block.transform.position;
-                                break;
-                            //C
-                            case 180:
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    block.MoveLeft();
-                                }
-                                savePosition2 = block.transform.position;
-                                break;
-                        }
-                        break;
-                    //A
-                    case 0:
-                        switch (beforerotationZ)
-                        {
-                            //D
-                            case 90:
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    block.MoveRight();
-                                }
-                                savePosition2 = block.transform.position;
-                                break;
-                            //B
-                            case 270:
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    block.MoveLeft();
-                                }
-                                savePosition2 = block.transform.position;
-                                break;
-                        }
-                        break;
-                    //C
-                    case 180:
-                        switch (beforerotationZ)
-                        {
-                            //D
-                            case 90:
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    block.MoveLeft();
-                                }
-                                savePosition2 = block.transform.position;
-                                break;
-                            //B
-                            case 270:
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    block.MoveRight();
-                                }
-                                savePosition2 = block.transform.position;
-                                break;
-                        }
-                        break;
-                }
-                if (!board.IsWithinPosition(block))
-                {
-                    switch (afterrotationZ)
-                    {
-                        //B
-                        case 270:
-                            block.transform.position = savePosition1;
-                            for (int i = 0; i < rotate; i++)
-                            {
-                                block.MoveDown();
-                            }
-                            break;
-                        //D
-                        case 90:
-                            block.transform.position = savePosition1;
-                            for (int i = 0; i < rotate; i++)
-                            {
-                                block.MoveUp();
-                            }
-                            break;
-                        //A
-                        case 0:
-                        //C
-                        case 180:
-                            switch (beforerotationZ)
-                            {
-                                //B
-                                case 270:
-                                    block.transform.position = savePosition1;
-                                    for (int i = 2; i > 0; i = i - rotate)
-                                    {
-                                        block.MoveUp();
-                                    }
-                                    break;
-                                //D
-                                case 90:
-                                    block.transform.position = savePosition2;
-                                    for (int i = 2; i > 0; i = i - rotate)
-                                    {
-                                        block.MoveDown();
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-
-                    if (!board.IsWithinPosition(block))
-                    {
-                        switch (afterrotationZ)
-                        {
-                            //B
-                            case 270:
-                                block.transform.position = savePosition2;
-                                for (int i = 2; i > 0; i = i - rotate)
-                                {
-                                    block.MoveUp();
-                                }
-                                break;
-                            //D
-                            case 90:
-                                block.transform.position = savePosition2;
-                                for (int i = 2; i > 0; i = i - rotate)
-                                {
-                                    block.MoveDown();
-                                }
-                                break;
-                            //A
-                            case 0:
-                            //C
-                            case 180:
-                                switch (beforerotationZ)
-                                {
-                                    //D
-                                    case 90:
-                                        block.transform.position = savePosition1;
-                                        for (int i = 0; i < rotate; i++)
-                                        {
-                                            block.MoveUp();
-                                        }
-                                        break;
-                                    //B
-                                    case 270:
-                                        block.transform.position = savePosition2;
-                                        for (int i = 0; i < rotate; i++)
-                                        {
-                                            block.MoveDown();
-                                        }
-                                        break;
-                                }
-                                break;
-                        }
-                        if (!board.IsWithinPosition(block))
-                        {
-                            block.transform.position = savePosition;
-                            switch (rotate)
-                            {
-                                case 1:
-                                    block.RotateLeft();
-                                    break;
-                                case 2:
-                                    block.RotateRight();
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            switch (afterrotationZ)
-            {
-                //B
-                case 270:
-                    block.MoveLeft();
-                    break;
-                //D
-                case 90:
-                    block.MoveRight();
-                    break;
-                //A
-                case 0:
-                //C
-                case 180:
-                    switch (beforerotationZ)
-                    {
-                        //D
-                        case 90:
-                            block.MoveLeft();
-                            break;
-                        //B
-                        case 270:
-                            block.MoveRight();
-                            break;
-                    }
-                    break;
-            }
-            if (!board.IsWithinPosition(block))
-            {
-                switch (afterrotationZ)
-                {
-                    //D
-                    case 90:
-                    //B
-                    case 270:
-                        block.MoveUp();
-                        break;
-                    //A
-                    case 0:
-                    //C
-                    case 180:
-                        block.MoveDown();
-                        break;
-                }
-                if (!board.IsWithinPosition(block))
-                {
-                    block.transform.position = savePosition;
-                    switch (afterrotationZ)
-                    {
-                        //D
-                        case 90:
-                        //B
-                        case 270:
-                            for (int i = 0; i < 2; ++i)
-                            {
-                                block.MoveDown();
-                            }
-                            break;
-                        //A
-                        case 0:
-                        //C
-                        case 180:
-                            for (int i = 0; i < 2; ++i)
-                            {
-                                block.MoveUp();
-                            }
-                            break;
-                    }
-                    if (!board.IsWithinPosition(block))
-                    {
-                        switch (afterrotationZ)
-                        {
-                            //B
-                            case 270:
-                                block.MoveLeft();
-                                break;
-                            //D
-                            case 90:
-                                block.MoveRight();
-                                break;
-                            //A
-                            case 0:
-                            //C
-                            case 180:
-                                switch (beforerotationZ)
-                                {
-                                    //B
-                                    case 270:
-                                        block.MoveRight();
-                                        break;
-                                    //D
-                                    case 90:
-                                        block.MoveLeft();
-                                        break;
-                                }
-                                break;
-                        }
-                        if (!board.IsWithinPosition(block))
-                        {
-                            block.transform.position = savePosition;
-                            switch (rotate)
-                            {
-                                case 1:
-                                    block.RotateLeft();
-                                    break;
-                                case 2:
-                                    block.RotateRight();
-                                    break;
-                            }
-                        }
                     }
                 }
             }
@@ -652,14 +265,9 @@ public class GameManager : MonoBehaviour
             List<BlockPeace> blockPeaces = savedBlock
                 .GetComponentsInChildren<BlockPeace>()
                 .ToList();
-            await PrepareMargeBlock(blockPeaces);
+            List<BlockPeace> highValueBlocks = new List<BlockPeace>();
+            await MargeBlock(blockPeaces, highValueBlocks);
         }
-    }
-
-    private async UniTask PrepareMargeBlock(List<BlockPeace> blockPeaces)
-    {
-        List<BlockPeace> highValueBlocks = new List<BlockPeace>();
-        await MargeBlock(blockPeaces, highValueBlocks);
     }
 
     private async UniTask MargeBlock(List<BlockPeace> blockPeaces, List<BlockPeace> highValueBlocks)
@@ -671,34 +279,28 @@ public class GameManager : MonoBehaviour
         {
             BlockPeace blockPeace = blockPeaces[i];
             HashSet<BlockPeace> visited = new HashSet<BlockPeace>();
-            if (!visited.Contains(blockPeace))
+            ExploreBlock(blockPeace, visited);
+            int count = visited.Count;
+            if (count >= 2)
             {
-                ExploreBlock(blockPeace, visited);
-                int count = visited.Count;
-                if (count >= 2)
+                Vector3 newPos = visited
+                    .OrderBy(bp => bp.transform.position.y)
+                    .First()
+                    .transform.position;
+
+                await AnimationMargeBlock(visited, newPos, positions);
+
+                int n = (int)Mathf.Pow(2, count - 1);
+                int newNumber = n * blockPeace.Number;
+                score.AddScore(newNumber);
+                BlockPeace newBlockPeace = board.CreateNewBlock(newPos, newNumber);
+                if (newBlockPeace.Number >= 256)
                 {
-                    Vector3 newPos = visited
-                        .OrderBy(bp => bp.transform.position.y)
-                        .First()
-                        .transform.position;
-
-                    foreach (BlockPeace bp in visited)
-                    {
-                        await AnimationMargeBlock(bp, newPos, positions);
-                    }
-
-                    int n = (int)Mathf.Pow(2, count - 1);
-                    int newNumber = n * blockPeace.Number;
-                    score.AddScore(newNumber);
-                    BlockPeace newBlockPeace = board.CreateNewBlock(newPos, newNumber);
-                    if (newBlockPeace.Number >= 256)
-                    {
-                        highValueBlocks.Add(newBlockPeace);
-                    }
-                    await UniTask.WaitUntil(() => visited.All(bp => bp == null));
-                    blockPeaces.Add(newBlockPeace);
-                    blockPeaces = blockPeaces.OrderBy(bp => bp.Number).ToList();
+                    highValueBlocks.Add(newBlockPeace);
                 }
+                await UniTask.WaitUntil(() => visited.All(bp => bp == null));
+                blockPeaces.Add(newBlockPeace);
+                blockPeaces = blockPeaces.OrderBy(bp => bp.Number).ToList();
             }
         }
 
@@ -732,21 +334,26 @@ public class GameManager : MonoBehaviour
     }
 
     private async UniTask AnimationMargeBlock(
-        BlockPeace bp,
+        HashSet<BlockPeace> visited,
         Vector3 newPos,
         List<Vector3Int> positions
     )
     {
-        Vector3Int pos = Vector3Int.RoundToInt(bp.transform.position);
-        board.RemoveBlock(pos);
-
-        if (pos != Rounding.Round(newPos))
+        var tasks = new List<UniTask>();
+        foreach (BlockPeace bp in visited)
         {
-            positions.Add(pos);
-        }
+            Vector3Int pos = Vector3Int.RoundToInt(bp.transform.position);
+            board.RemoveBlock(pos);
 
-        BlockMover blockMover = bp.gameObject.AddComponent<BlockMover>();
-        await blockMover.MoveToPosition(newPos, 0.25f);
+            if (pos != Rounding.Round(newPos))
+            {
+                positions.Add(pos);
+            }
+
+            BlockMover blockMover = bp.gameObject.AddComponent<BlockMover>();
+            tasks.Add(blockMover.MoveToPosition(newPos, 0.25f));
+        }
+        await UniTask.WhenAll(tasks);
     }
 
     private void ExploreBlock(BlockPeace blockPeace, HashSet<BlockPeace> visited)
@@ -812,7 +419,7 @@ public class GameManager : MonoBehaviour
             {
                 activeBlock = GetNextBlock();
                 //ゴーストブロックの変更
-                Destroy(ghostBlock.gameObject);
+                ghostBlock.DestroyGhostBlock();
                 ghostBlock.CreateGhostBlock(activeBlock);
             }
             holdBlock = holdSpawner.HoldBlock(saveBlock);
@@ -836,5 +443,4 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
-
 }
